@@ -12,7 +12,7 @@ void setup() {
   Serial.begin(9600);
   pinMode(13, INPUT);
   pinMode(12, OUTPUT);
-
+  pinMode(10, OUTPUT);
 }
 
 void loop() {
@@ -35,4 +35,12 @@ void loop() {
   Serial.println(String(tocm));
   delay(100);
 
+  // If under a foot do this
+  // https://arduinogetstarted.com/tutorials/arduino-ultrasonic-sensor-relay
+  if(tocm == 30.5){
+    digitalWrite(10, HIGH);
+  }
+  else{
+    digitalWrite(10,LOW);
+  }
 }
