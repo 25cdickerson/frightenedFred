@@ -1,5 +1,12 @@
 // Code for Frightened Fred Project
 
+// Variables
+// Motor
+int motor1pin1 = 2;
+int motor1pin2 = 3;
+int motor2pin1 = 4;
+int motor2pin2 = 5;
+
 // Function to calculate distance (cm) based on microseconds.
 long microsecondsToCentimeters(long microseconds)
 {
@@ -13,6 +20,12 @@ void setup() {
   pinMode(13, INPUT);
   pinMode(12, OUTPUT);
   pinMode(10, OUTPUT);
+
+  // Motor
+  pinMode(motor1pin1, OUTPUT);
+  pinMode(motor1pin2, OUTPUT);
+  pinMode(motor2pin1, OUTPUT);
+  pinMode(motor2pin2, OUTPUT);
 }
 
 void loop() {
@@ -35,12 +48,24 @@ void loop() {
   Serial.println(String(tocm));
   delay(100);
 
-  // If under a foot do this
+  // If under 10 cm do this
   // https://arduinogetstarted.com/tutorials/arduino-ultrasonic-sensor-relay
-  if(tocm == 30.5){
-    digitalWrite(10, HIGH);
+  if(tocm == 10){
+     // Turn off Motor1 and engage the brake
+     digitalWrite(motor1pin1, LOW);
+     digitalWrite(motor1pin2, HIGH);
+
+     // Turn of Motor2 and engage the brake
+     digitalWrite(motor2pin1, LOW);
+     digitalWrite(motor2pin2, HIGH);
   }
   else{
-    digitalWrite(10,LOW);
+    // Turns Motor1 on and disengages the brake
+    digitalWrite(motor1pin1, HIGH);
+    digitalWrite(motor1pin2, LOW);
+
+    // Turns Motor2 on and disengages the brake
+    digitalWrite(motor2pin1, HIGH);
+    digitalWrite(motor2pin2, LOW);
   }
 }
