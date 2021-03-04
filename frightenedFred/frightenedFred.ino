@@ -48,16 +48,27 @@ void loop() {
   Serial.println(String(tocm));
   delay(100);
 
+  
   // If under 10 cm do this
-  // https://arduinogetstarted.com/tutorials/arduino-ultrasonic-sensor-relay
-  if(tocm == 10){
+  if(tocm <= 10){
      // Turn off Motor1 and engage the brake
      digitalWrite(motor1pin1, LOW);
      digitalWrite(motor1pin2, HIGH);
+     delay(2000);
 
      // Turn of Motor2 and engage the brake
      digitalWrite(motor2pin1, LOW);
      digitalWrite(motor2pin2, HIGH);
+     delay(2000);
+     
+     // Turns after 2 seconds of going backwards for 3 seconds
+     digitalWrite(motor1pin1, HIGH);
+     digitalWrite(motor1pin2, LOW);
+     delay(3000);
+
+     digitalWrite(motor2pin2, LOW);
+     digitalWrite(motor2pin1, LOW);
+     delay(3000);
   }
   else{
     // Turns Motor1 on and disengages the brake
