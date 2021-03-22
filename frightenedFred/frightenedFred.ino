@@ -1,11 +1,24 @@
 // Code for Frightened Fred Project
 
+#include "SoftwareSerial.h"
+#include "DFRobotDFPlayerMini.h"
+
 // Variables
 // Motor
 int motor1pin1 = 2;
 int motor1pin2 = 3;
 int motor2pin1 = 4;
 int motor2pin2 = 5;
+
+// Audio
+static const uint8_t PIN_MP3_TX = 6; // Connects to module's RX
+static const uint8_t PIN_MP3_RX = 7; // Connects to module's TX
+
+SoftwareSerial softwareSerial(PIN_MP3_RX, PIN_MP3_TX);
+
+// Create the Player object
+DFRobotDFPlayerMini player;
+
 
 // Function to calculate distance (cm) based on microseconds.
 long microsecondsToCentimeters(long microseconds)
@@ -26,6 +39,23 @@ void setup() {
   pinMode(motor1pin2, OUTPUT);
   pinMode(motor2pin1, OUTPUT);
   pinMode(motor2pin2, OUTPUT);
+
+  // Audio
+  // Init serial port for DFPlayer Mini
+  softwareSerial.begin(9600);
+
+  // Start communication with DFPlayer Mini
+  if (player.begin(softwareSerial)) {
+    Serial.println("OK");
+
+    // Set volume to maximum (0 to 30).
+    player.volume(30);
+    // Play the "0001.mp3" in the "mp3" folder on the SD card
+    player.playMp3Folder(1);
+
+  } else {
+    Serial.println("Connecting to DFPlayer Mini failed!");
+  }
 }
 
 void loop() {
