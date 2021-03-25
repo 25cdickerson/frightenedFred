@@ -1,7 +1,13 @@
 // Code for Frightened Fred Project
-
 #include "SoftwareSerial.h"
-#include "DFRobotDFPlayerMini.h"
+SoftwareSerial mySerial(1,0);
+# define Start_Byte 0x7E
+# define Version_Byte 0xFF
+# define Command_Length 0x06
+# define End_Byte 0xEF
+# define Acknowledge 0x00 //Returns info with command 0x41 [0x01: info, 0x00: no info]
+
+# define ACTIVATED LOW
 
 // Variables
 // Motor
@@ -10,26 +16,64 @@ int motor1pin2 = 3;
 int motor2pin1 = 4;
 int motor2pin2 = 5;
 
-// Audio
-static const uint8_t PIN_MP3_TX = 6; // Connects to module's RX
-static const uint8_t PIN_MP3_RX = 7; // Connects to module's TX
-
-SoftwareSerial softwareSerial(PIN_MP3_RX, PIN_MP3_TX);
-
-// Create the Player object
-DFRobotDFPlayerMini player;
-
-
 // Function to calculate distance (cm) based on microseconds.
 long microsecondsToCentimeters(long microseconds)
 {
   return microseconds / 29 / 2;
 }
 
+// Audio Function That Plays a Song
+void playSong()
+{
+  execute_CMD(0x3F, 0, 0);
+  delay(500);
+  setVolume(15);
+  delay(500);
+  execute_CMD(0x11,0,1); 
+  delay(500);
+}
+
+// Audio Function That Pauses a Song
+void pause()
+{
+  execute_CMD(0x0E,0,0);
+  delay(500);
+}
+
+// Audio Funciton That Plays Next Song
+void playNext()
+{
+  execute_CMD(0x01,0,1);
+  delay(500);
+}
+
+// Function That Sets the Volume of a Song
+void setVolume(int volume)
+{
+  execute_CMD(0x06, 0, volume); // Set the volume (0x00~0x30)
+  delay(2000);
+}
+
+void execute_CMD(byte CMD, byte Par1, byte Par2)
+// Excecute the command and parameters
+{
+  // Calculate the checksum (2 bytes)
+  word checksum = -(Version_Byte + Command_Length + CMD + Acknowledge + Par1 + Par2);
+  // Build the command line
+  byte Command_line[10] = { Start_Byte, Version_Byte, Command_Length, CMD, Acknowledge,
+  Par1, Par2, highByte(checksum), lowByte(checksum), End_Byte};
+  //Send the command line to the module
+  for (byte k=0; k<10; k++)
+  {
+  mySerial.write( Command_line[k]);
+  }
+}
+
 void setup() {
   // put your setup code here, to run once:
   // Distance Sensor
   Serial.begin(9600);
+  delay(1000);
   pinMode(13, INPUT);
   pinMode(12, OUTPUT);
   pinMode(10, OUTPUT);
@@ -39,23 +83,6 @@ void setup() {
   pinMode(motor1pin2, OUTPUT);
   pinMode(motor2pin1, OUTPUT);
   pinMode(motor2pin2, OUTPUT);
-
-  // Audio
-  // Init serial port for DFPlayer Mini
-  softwareSerial.begin(9600);
-
-  // Start communication with DFPlayer Mini
-  if (player.begin(softwareSerial)) {
-    Serial.println("OK");
-
-    // Set volume to maximum (0 to 30).
-    player.volume(30);
-    // Play the "0001.mp3" in the "mp3" folder on the SD card
-    player.playMp3Folder(1);
-
-  } else {
-    Serial.println("Connecting to DFPlayer Mini failed!");
-  }
 }
 
 void loop() {
@@ -113,4 +140,10 @@ void loop() {
     digitalWrite(motor2pin1, HIGH);
     digitalWrite(motor2pin2, LOW);
   }
+
+  // Audio
+  playSong();
+  delay(5000);
+  pause();
+  delay(1000);
 }
